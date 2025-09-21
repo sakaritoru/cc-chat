@@ -1,15 +1,51 @@
 {
-  "name": "test-ai-elements",
+  "name": "cc-chat",
   "version": "0.1.0",
-  "private": true,
+  "description": "Global CLI command to run Claude Code chat interface from anywhere",
+  "private": false,
+  "bin": {
+    "cc-chat": "./bin/cc-chat"
+  },
+  "files": [
+    "bin/",
+    "app/",
+    "components/",
+    "lib/",
+    "public/",
+    "next.config.ts",
+    "tsconfig.json",
+    "postcss.config.mjs",
+    "components.json",
+    "biome.json",
+    "eslint.config.mjs",
+    "next-env.d.ts",
+    ".next/"
+  ],
+  "keywords": [
+    "claude-code",
+    "cli",
+    "chat",
+    "ai",
+    "assistant",
+    "global-command"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cc-chat.git"
+  },
+  "homepage": "https://github.com/yourusername/cc-chat#readme",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack --port ${PORT:-3004}",
     "build": "next build --turbopack",
-    "start": "next start",
+    "start": "next start --port ${PORT:-3004}",
     "lint": "eslint",
     "format": "biome format --write .",
     "check": "biome check .",
-    "check:fix": "biome check --write ."
+    "check:fix": "biome check --write .",
+    "prepublishOnly": "bun run build",
+    "cc-chat": "./bin/cc-chat"
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.47",

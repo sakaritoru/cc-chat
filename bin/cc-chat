@@ -1,0 +1,175 @@
+#!/usr/bin/env node
+
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
+// CLI arguments parsing
+const args = process.argv.slice(2);
+let port = 3004;
+let showHelp = false;
+let command = 'start'; // default command
+
+// Check for subcommands
+if (args.length > 0 && !args[0].startsWith('-')) {
+  command = args[0];
+  args.shift(); // remove command from args
+}
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--port' || args[i] === '-p') {
+    port = parseInt(args[i + 1]) || 3004;
+    i++; // skip the next argument
+  } else if (args[i] === '--help' || args[i] === '-h') {
+    showHelp = true;
+  }
+}
+
+if (showHelp) {
+  console.log(`
+CC Chat - Claude Code Chat Interface
+
+Usage: cc-chat [command] [options]
+
+Commands:
+  start                Start the CC Chat server (default)
+  init                 Build the CC Chat project
+
+Options:
+  -p, --port <port>    Port to run the server on (default: 3004)
+  -h, --help          Display this help message
+
+Examples:
+  cc-chat              Start server on default port 3004
+  cc-chat init         Build the project
+  cc-chat --port 8080  Start server on port 8080
+  cc-chat start -p 8080 Start server on port 8080
+  `);
+  process.exit(0);
+}
+
+// Get the current working directory (where the command was executed)
+const projectDir = process.cwd();
+
+// Get the CC Chat installation directory
+const ccChatDir = path.dirname(__dirname);
+
+// Check if CC Chat is properly installed
+const ccChatPackageJsonPath = path.join(ccChatDir, 'package.json');
+if (!fs.existsSync(ccChatPackageJsonPath)) {
+  console.error('Error: Could not find CC Chat installation.');
+  console.error('Please ensure CC Chat is properly installed.');
+  process.exit(1);
+}
+
+// Handle different commands
+if (command === 'init') {
+  console.log('🔨 Building CC Chat...');
+  console.log(`📁 Project directory: ${projectDir}`);
+
+  // Set environment variables
+  process.env.CC_CHAT_WORKING_DIR = projectDir;
+
+  // Run build
+  const buildChild = spawn('bun', ['run', 'build'], {
+    cwd: ccChatDir,
+    stdio: 'inherit',
+    env: { ...process.env }
+  });
+
+  buildChild.on('close', (code) => {
+    if (code !== 0) {
+      console.error(`Build failed with code ${code}`);
+      process.exit(code);
+    } else {
+      console.log('✅ Build completed successfully!');
+    }
+  });
+
+  // Handle termination
+  process.on('SIGINT', () => {
+    console.log('\n👋 Cancelling build...');
+    buildChild.kill('SIGINT');
+  });
+
+  process.on('SIGTERM', () => {
+    buildChild.kill('SIGTERM');
+  });
+
+  return;
+}
+
+// Default start command
+console.log('🚀 Starting server...');
+console.log(`📁 Project directory: ${projectDir}`);
+console.log(`🌐 Server will be available at: http://localhost:${port}`);
+
+// Set environment variables
+process.env.PORT = port.toString();
+process.env.CC_CHAT_WORKING_DIR = projectDir;
+
+// Check if build is needed
+const nextDir = path.join(ccChatDir, '.next');
+const buildExists = fs.existsSync(nextDir);
+
+let bunCommand = 'bun';
+let scriptArgs;
+
+if (!buildExists) {
+  console.log('🔨 Build not found, running build first...');
+  scriptArgs = ['run', 'build'];
+} else {
+  console.log('✅ Build found, starting server...');
+  scriptArgs = ['run', 'start'];
+}
+
+// Spawn the process (execute CC Chat's start script from CC Chat directory)
+const child = spawn(bunCommand, scriptArgs, {
+  cwd: ccChatDir,
+  stdio: 'inherit',
+  env: { ...process.env }
+});
+
+// Handle process termination
+process.on('SIGINT', () => {
+  console.log('\n👋 Shutting down CC Chat server...');
+  child.kill('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  child.kill('SIGTERM');
+});
+
+child.on('close', (code) => {
+  if (code !== 0) {
+    console.error(`Process exited with code ${code}`);
+    process.exit(code);
+  }
+
+  // If we just finished building, now start the server
+  if (scriptArgs[1] === 'build') {
+    console.log('🚀 Build completed, starting server...');
+    const startChild = spawn('bun', ['run', 'start'], {
+      cwd: ccChatDir,
+      stdio: 'inherit',
+      env: { ...process.env }
+    });
+
+    // Handle termination for start process
+    process.on('SIGINT', () => {
+      console.log('\n👋 Shutting down CC Chat server...');
+      startChild.kill('SIGINT');
+    });
+
+    process.on('SIGTERM', () => {
+      startChild.kill('SIGTERM');
+    });
+
+    startChild.on('close', (startCode) => {
+      if (startCode !== 0) {
+        console.error(`Server process exited with code ${startCode}`);
+        process.exit(startCode);
+      }
+    });
+  }
+});

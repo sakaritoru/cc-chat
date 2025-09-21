@@ -9,11 +9,18 @@ import {
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
+  // Change working directory if specified by CLI
+  const workingDir = process.env.CC_CHAT_WORKING_DIR;
+
   const stream = createUIMessageStream({
     execute({ writer }) {
       // Can merge with LLM streams
       const result = streamText({
-        model: claudeCode('claude-3-5-sonnet-20241022'),
+        model: claudeCode('claude-sonnet-4-20250514', {
+          options: {
+            cwd: workingDir,
+          }
+        }),
         messages: convertToModelMessages(messages),
       });
 

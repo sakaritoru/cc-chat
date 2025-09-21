@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CC Chat
 
-## Getting Started
+CC Chat はコマンドラインからどこからでもClaude Code チャットインターフェースを起動できるグローバルCLIツールです。
 
-First, run the development server:
+## インストール
+
+### NPMでグローバルインストール (推奨)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install -g cc-chat
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 代替方法: ローカルでのリンク
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git clone https://github.com/yourusername/cc-chat.git
+cd cc-chat
+bun install
+bun link
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 使用方法
 
-## Learn More
+### 基本的な使用方法
 
-To learn more about Next.js, take a look at the following resources:
+どこからでもCC Chatを起動できます：
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# どこからでも実行可能（サーバー起動）
+cc-chat
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# カスタムポートで起動
+cc-chat --port 8080
+cc-chat start -p 8080
 
-## Deploy on Vercel
+# 手動でビルドを実行
+cc-chat init
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# ヘルプメッセージを表示
+cc-chat --help
+cc-chat -h
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### コマンド
+
+- **start** (デフォルト): CC Chatサーバーを起動
+- **init**: CC Chatプロジェクトをビルド
+
+### 機能
+
+- **どこからでも起動**: ディレクトリに関係なくCC Chatを起動
+- **自動ビルド**: 初回起動時やビルドが存在しない場合は自動でビルド
+- **手動ビルド**: `init`コマンドで明示的にビルドを実行
+- **カスタムポート**: `--port` オプションで任意のポートを指定
+- **グレースフルシャットダウン**: Ctrl+C で安全にサーバーを停止
+- **作業ディレクトリ対応**: コマンドを実行したディレクトリをプロジェクトディレクトリとして認識
+
+### 例
+
+```bash
+# どこからでもCC Chatを起動
+cc-chat
+
+# 手動でビルドを実行
+cc-chat init
+
+# ポート8080でCC Chatを起動
+cc-chat --port 8080
+
+# startコマンドを明示的に使用
+cc-chat start -p 8080
+
+# サーバーにアクセス
+# ブラウザで http://localhost:3004 (または指定したポート) を開く
+```
+
+## トラブルシューティング
+
+### cc-chat コマンドが見つからない場合
+
+NPMでインストールした場合：
+```bash
+npm install -g cc-chat
+```
+
+ローカルリンクの場合：
+```bash
+bun link  # プロジェクトディレクトリで再実行
+```
+
+### ポートが使用中の場合
+
+```bash
+cc-chat --port 3005
+```
+
+別のポートを指定してください。
+
+## 開発者向け
+
+CLIスクリプトは `bin/cc-chat` にあります。Node.js で実装されており、引数解析とプロセス管理を行います。
+
+## ライセンス
+
+MIT
