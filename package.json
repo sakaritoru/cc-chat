@@ -1,5 +1,5 @@
 {
-  "name": "cc-chat",
+  "name": "@s4k4r1/cc-chat",
   "version": "0.1.0",
   "description": "Global CLI command to run Claude Code chat interface from anywhere",
   "private": false,

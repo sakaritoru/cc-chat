@@ -7,7 +7,7 @@ CC Chat はコマンドラインからどこからでもClaude Code チャット
 ### NPMでグローバルインストール (推奨)
 
 ```bash
-npm install -g cc-chat
+npm install -g @s4k4r1/cc-chat
 ```
 
 ### 代替方法: ローカルでのリンク
@@ -80,7 +80,7 @@ cc-chat start -p 8080
 
 NPMでインストールした場合：
 ```bash
-npm install -g cc-chat
+npm install -g @s4k4r1/cc-chat
 ```
 
 ローカルリンクの場合：
